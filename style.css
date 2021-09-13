@@ -97,10 +97,15 @@ body {
 
 /* Main */
 
-.carrot {
+.carrot,
+.bug {
   cursor: pointer;
 }
 
 .carrot:hover {
   transform: scale(1.2);
+}
+
+.bug:hover {
+  transform: scale(1.1);
 }

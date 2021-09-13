@@ -12,95 +12,15 @@ const modalText = document.querySelector(".modal-text > span");
 const btnModalReStart = document.querySelector(".btn-reStart");
 
 const carrotClickSound = document.querySelector(".carrotClick");
+const bugClickSound = document.querySelector(".bugClick");
 
-// Variable
+// Global Variable
 
 let carrotCount = 10;
 let sec = 10;
 let Time;
 let carrots;
-
-// Audio & Time
-
-function audioFunction() {
-  const audioTagC = document.querySelector("[src='sound/bg.mp3']");
-  if (audioTagC) {
-    btnStartIcon.classList.remove("fa-stop");
-    audioTagC.remove();
-    clearInterval(Time);
-    return;
-  } else {
-    timeFunction();
-    btnStartIcon.classList.add("fa-stop");
-    const audioBg = document.createElement("audio");
-    audioBg.setAttribute("src", "sound/bg.mp3");
-    audioBg.setAttribute("autoplay", "");
-    document.body.appendChild(audioBg);
-  }
-}
-
-function setIntervalTime() {
-  Time = setInterval(() => {
-    sec--;
-    if (carrotCount === 0) {
-      modal.style.zIndex = "1";
-      modalText.innerText = "⭐ YOU WON 👏";
-      modal.style.display = "block";
-      audioFunction();
-      const audioBg = document.createElement("audio");
-      audioBg.setAttribute("src", "sound/game_win.mp3");
-      audioBg.setAttribute("autoplay", "");
-      document.body.appendChild(audioBg);
-    }
-    if (sec === 0) {
-      console.log("게임종료");
-      clearInterval(Time);
-      audioFunction();
-      modal.style.zIndex = "1";
-      modalText.innerText = "YOU LOST 😂";
-      modal.style.display = "block";
-    }
-    timeZone.innerText = `00:${
-      sec === 0 ? "00" : sec === 10 ? sec : `0${sec}`
-    }`;
-  }, 1000);
-}
-
-function timeFunction() {
-  setTimeout(() => {
-    carrotsCount.innerText = 10;
-    setIntervalTime();
-  }, 500);
-}
-
-// Game Start && reStart
-
-const selectCarrots = () => {
-  carrots = document.querySelectorAll(".carrot");
-  carrots.forEach((carrot) => {
-    carrot.addEventListener("click", () => {
-      carrot.remove();
-      carrotClickSound.play();
-      carrotsCount.innerText = --carrotCount;
-    });
-  });
-};
-
-const clickGameStart = () => {
-  audioFunction();
-  carrotBugRandom();
-  selectCarrots();
-};
-
-const clickGameReStart = () => {
-  const imgTag = document.querySelectorAll("img");
-  sec = 11;
-  modal.style.display = "none";
-  audioFunction();
-  imgTag.forEach((img) => img.remove());
-  carrotBugRandom();
-  selectCarrots();
-};
+let isBugClick = false;
 
 // Carrots && bugs Variable
 
@@ -143,6 +63,127 @@ const bugImage = [
   BUGIMAGE,
 ];
 
+// Audio & Time
+
+function audioFunction() {
+  const audioTagC = document.querySelector("[src='sound/bg.mp3']");
+  if (audioTagC) {
+    btnStartIcon.classList.remove("fa-stop");
+    audioTagC.remove();
+    clearInterval(Time);
+    return;
+  } else {
+    timeFunction();
+    btnStartIcon.classList.add("fa-stop");
+    const audioBg = document.createElement("audio");
+    audioBg.setAttribute("src", "sound/bg.mp3");
+    audioBg.setAttribute("autoplay", "");
+    document.body.appendChild(audioBg);
+  }
+}
+
+// Create Element
+
+function audioCreate(src, sound) {
+  const audioBg = document.createElement("audio");
+  audioBg.setAttribute(src, sound);
+  audioBg.setAttribute("autoplay", "");
+  document.body.appendChild(audioBg);
+}
+
+function imgCreate(Images, className, onclickFunction, sizeWidth, sizeHeight) {
+  Images.forEach((image) => {
+    const img = document.createElement("img");
+    img.setAttribute("class", className);
+    img.setAttribute("onclick", onclickFunction);
+    img.setAttribute("width", sizeWidth);
+    img.setAttribute("height", sizeHeight);
+    img.setAttribute("src", image);
+    img.style.position = "absolute";
+    img.style.top = `${getRandomNumberTop()}%`;
+    img.style.left = `${getRandomNumberleft()}%`;
+    document.body.appendChild(img);
+  });
+}
+
+// You Win
+
+function youWon() {
+  modal.style.zIndex = "1";
+  modalText.innerText = "⭐ YOU WON 👏";
+  modal.style.display = "block";
+  audioFunction();
+  audioCreate("src", "sound/game_win.mp3");
+  return;
+}
+
+// You Lost
+
+function youLost() {
+  clearInterval(Time);
+  audioFunction();
+  audioCreate("src", "sound/alert.wav");
+  modal.style.zIndex = "1";
+  modalText.innerText = "YOU LOST 😂";
+  modal.style.display = "block";
+  return;
+}
+
+function setIntervalTime() {
+  Time = setInterval(() => {
+    --sec;
+    timeZone.innerText = `00:${
+      sec === 0 ? "00" : sec === 10 ? sec : `0${sec}`
+    }`;
+    if (carrotCount === 0) {
+      youWon();
+    }
+    if (sec === 0) {
+      youLost();
+    }
+  }, 1000);
+}
+
+function timeFunction() {
+  carrotsCount.innerText = carrotCount;
+  setIntervalTime();
+}
+
+// Game Start && reStart
+
+const selectCarrots = (info) => {
+  info.remove();
+  carrotClickSound.play();
+  carrotsCount.innerText = --carrotCount;
+};
+
+const selectBugs = (info) => {
+  if (info) {
+    bugClickSound.play();
+    isBugClick = true;
+    youLost();
+  }
+};
+
+const clickGameStart = () => {
+  audioFunction();
+  carrotBugRandom();
+};
+
+const clickGameReStart = () => {
+  const imgTag = document.querySelectorAll("img");
+  sec = 11;
+  carrotCount = 10;
+  isBugClick = false;
+  modal.style.display = "none";
+  imgTag.forEach((img) => img.remove());
+  audioFunction();
+  timeZone.innerText = "00:10";
+  setTimeout(() => {
+    carrotBugRandom();
+  }, 1000);
+};
+
 // Random Number
 
 function getRandomNumberTop() {
@@ -168,42 +209,15 @@ function getRandomNumberleft() {
 }
 
 // Add Img Tags
-
-function carrotPosition() {
-  carrotImage.forEach((image) => {
-    const img = document.createElement("img");
-    img.setAttribute("class", "carrot");
-    img.setAttribute("width", "150px");
-    img.setAttribute("height", "150px");
-    img.setAttribute("src", image);
-    img.style.position = "absolute";
-    img.style.top = `${getRandomNumberTop()}%`;
-    img.style.left = `${getRandomNumberleft()}%`;
-    document.body.appendChild(img);
-  });
-}
-
-function bugPosition() {
-  bugImage.forEach((image) => {
-    const img = document.createElement("img");
-    img.setAttribute("class", "bug");
-    img.setAttribute("width", "100px");
-    img.setAttribute("height", "100px");
-    img.setAttribute("src", image);
-    img.style.position = "absolute";
-    img.style.top = `${getRandomNumberTop()}%`;
-    img.style.left = `${getRandomNumberleft()}%`;
-    document.body.appendChild(img);
-  });
-}
+// Images, className, onclickFunction, sizeWidth, sizeHeight
 
 function carrotBugRandom() {
   const imgTagC = document.querySelector("[src='./img/carrot.png']");
   if (imgTagC) {
     return;
   }
-  carrotPosition();
-  bugPosition();
+  imgCreate(carrotImage, "carrot", "selectCarrots(this)", "150px", "150px");
+  imgCreate(bugImage, "bug", "selectBugs(this)", "100px", "100px");
 }
 
 // EventListenr
