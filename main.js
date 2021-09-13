@@ -16,7 +16,7 @@ const bugClickSound = document.querySelector(".bugClick");
 
 // Global Variable
 
-let carrotCount = 10;
+let carrotCount = 15;
 let sec = 10;
 let Time;
 let carrots;
@@ -28,6 +28,11 @@ const CARROTIMAGE = "./img/carrot.png";
 const BUGIMAGE = "./img/bug.png";
 
 const carrotImage = [
+  CARROTIMAGE,
+  CARROTIMAGE,
+  CARROTIMAGE,
+  CARROTIMAGE,
+  CARROTIMAGE,
   CARROTIMAGE,
   CARROTIMAGE,
   CARROTIMAGE,
@@ -67,13 +72,16 @@ const bugImage = [
 
 function audioFunction() {
   const audioTagC = document.querySelector("[src='sound/bg.mp3']");
+  const Img = document.querySelectorAll("img");
   if (audioTagC) {
+    Img.forEach((img) => (img.style.pointerEvents = "none"));
     btnStartIcon.classList.remove("fa-stop");
     audioTagC.remove();
     clearInterval(Time);
     return;
   } else {
     timeFunction();
+    Img.forEach((img) => (img.style.pointerEvents = "auto"));
     btnStartIcon.classList.add("fa-stop");
     const audioBg = document.createElement("audio");
     audioBg.setAttribute("src", "sound/bg.mp3");
@@ -114,33 +122,27 @@ function youWon() {
   modal.style.display = "block";
   audioFunction();
   audioCreate("src", "sound/game_win.mp3");
-  return;
 }
 
 // You Lost
 
 function youLost() {
-  clearInterval(Time);
   audioFunction();
   audioCreate("src", "sound/alert.wav");
   modal.style.zIndex = "1";
   modalText.innerText = "YOU LOST 😂";
   modal.style.display = "block";
-  return;
 }
 
 function setIntervalTime() {
   Time = setInterval(() => {
-    --sec;
-    timeZone.innerText = `00:${
-      sec === 0 ? "00" : sec === 10 ? sec : `0${sec}`
-    }`;
-    if (carrotCount === 0) {
-      youWon();
-    }
+    timeZone.innerText = `00:${sec === 10 ? sec : `0${sec}`}`;
     if (sec === 0) {
+      clearInterval(Time);
       youLost();
+      return;
     }
+    --sec;
   }, 1000);
 }
 
@@ -155,6 +157,11 @@ const selectCarrots = (info) => {
   info.remove();
   carrotClickSound.play();
   carrotsCount.innerText = --carrotCount;
+  if (carrotCount === 0) {
+    clearInterval(Time);
+    youWon();
+    return;
+  }
 };
 
 const selectBugs = (info) => {
@@ -172,8 +179,8 @@ const clickGameStart = () => {
 
 const clickGameReStart = () => {
   const imgTag = document.querySelectorAll("img");
-  sec = 11;
-  carrotCount = 10;
+  sec = 10;
+  carrotCount = 15;
   isBugClick = false;
   modal.style.display = "none";
   imgTag.forEach((img) => img.remove());
