@@ -122,6 +122,7 @@ function youWon() {
   modal.style.display = "block";
   audioFunction();
   audioCreate("src", "sound/game_win.mp3");
+  btnStart.style.display = "none";
 }
 
 // You Lost
@@ -132,6 +133,7 @@ function youLost() {
   modal.style.zIndex = "1";
   modalText.innerText = "YOU LOST 😂";
   modal.style.display = "block";
+  btnStart.style.display = "none";
 }
 
 function setIntervalTime() {
@@ -178,6 +180,7 @@ const clickGameStart = () => {
 };
 
 const clickGameReStart = () => {
+  btnStart.style.display = "block";
   const imgTag = document.querySelectorAll("img");
   sec = 10;
   carrotCount = 15;
