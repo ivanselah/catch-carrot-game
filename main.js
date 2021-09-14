@@ -21,6 +21,7 @@ let sec = 10;
 let Time;
 let carrots;
 let isBugClick = false;
+let isYouWon = false;
 
 // Carrots && bugs Variable
 
@@ -77,6 +78,9 @@ function audioFunction() {
     Img.forEach((img) => (img.style.pointerEvents = "none"));
     btnStartIcon.classList.remove("fa-stop");
     audioTagC.remove();
+    if (!isYouWon) {
+      reStart();
+    }
     clearInterval(Time);
     return;
   } else {
@@ -117,12 +121,13 @@ function imgCreate(Images, className, onclickFunction, sizeWidth, sizeHeight) {
 // You Win
 
 function youWon() {
+  audioFunction();
   modal.style.zIndex = "1";
   modalText.innerText = "⭐ YOU WON 👏";
   modal.style.display = "block";
-  audioFunction();
   audioCreate("src", "sound/game_win.mp3");
-  btnStart.style.display = "none";
+  btnStart.style.visibility = "hidden";
+  isYouWon = false;
 }
 
 // You Lost
@@ -133,7 +138,16 @@ function youLost() {
   modal.style.zIndex = "1";
   modalText.innerText = "YOU LOST 😂";
   modal.style.display = "block";
-  btnStart.style.display = "none";
+  btnStart.style.visibility = "hidden";
+}
+
+// Re Start
+
+function reStart() {
+  modal.style.zIndex = "1";
+  modalText.innerText = "🥕 REPLAY ❓";
+  modal.style.display = "block";
+  btnStart.style.visibility = "hidden";
 }
 
 function setIntervalTime() {
@@ -161,6 +175,7 @@ const selectCarrots = (info) => {
   carrotsCount.innerText = --carrotCount;
   if (carrotCount === 0) {
     clearInterval(Time);
+    isYouWon = true;
     youWon();
     return;
   }
@@ -180,18 +195,22 @@ const clickGameStart = () => {
 };
 
 const clickGameReStart = () => {
-  btnStart.style.display = "block";
+  btnStart.style.visibility = "visible";
   const imgTag = document.querySelectorAll("img");
-  sec = 10;
-  carrotCount = 15;
-  isBugClick = false;
+  if (isBugClick || carrotCount === 0 || sec === 0) {
+    sec = 10;
+    carrotCount = 15;
+    isBugClick = false;
+    imgTag.forEach((img) => img.remove());
+    audioFunction();
+    timeZone.innerText = "00:10";
+    setTimeout(() => {
+      carrotBugRandom();
+    }, 1000);
+  } else if (carrotCount !== 0 && sec !== 0) {
+    audioFunction();
+  }
   modal.style.display = "none";
-  imgTag.forEach((img) => img.remove());
-  audioFunction();
-  timeZone.innerText = "00:10";
-  setTimeout(() => {
-    carrotBugRandom();
-  }, 1000);
 };
 
 // Random Number
